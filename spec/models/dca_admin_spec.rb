@@ -54,4 +54,100 @@ describe DcaAdmin do
     expect(subject.batch_id).to eq ['1', '2', '3']
   end
 
+
+  context "parsing xml" do
+    context "that has nodes with the default namespace" do
+      let(:source) { "<admin #{namespaces}> <steward>Hey</steward> </admin>" }
+
+      before do
+        subject.content = source
+      end
+
+      context "and without a prefix 'local' defined" do
+        let(:namespaces) { 'xmlns="http://nils.lib.tufts.edu/dcaadmin/" xmlns:ac="http://purl.org/dc/dcmitype/"' }
+        describe "read" do
+          it "should have steward" do
+            expect(subject.steward).to eq ['Hey']
+          end
+        end
+
+        describe "write" do
+          context "a new node" do
+            before do
+              subject.note = ['foo']
+            end
+
+            it "should add the prefixed node" do
+              expect(subject.to_xml).to eq "<admin xmlns=\"http://nils.lib.tufts.edu/dcaadmin/\" xmlns:ac=\"http://purl.org/dc/dcmitype/\" xmlns:local=\"http://nils.lib.tufts.edu/dcaadmin/\"> <steward>Hey</steward> <local:note>foo</local:note></admin>"
+            end
+          end
+
+          context "an existing node" do
+            before do
+              subject.steward = ['foo', 'bar']
+            end
+
+            it "should add the prefixed node" do
+              expect(subject.to_xml).to eq "<admin xmlns=\"http://nils.lib.tufts.edu/dcaadmin/\" xmlns:ac=\"http://purl.org/dc/dcmitype/\" xmlns:local=\"http://nils.lib.tufts.edu/dcaadmin/\"> <steward>foo</steward> <local:steward>bar</local:steward></admin>"
+              expect(subject.steward).to eq ['foo', 'bar']
+            end
+          end
+        end
+      end
+
+      context "source with both prefix" do
+        let(:namespaces) { 'xmlns="http://nils.lib.tufts.edu/dcaadmin/" xmlns:local="http://nils.lib.tufts.edu/dcaadmin/" xmlns:ac="http://purl.org/dc/dcmitype/"' }
+        it "should have steward" do
+          expect(subject.steward).to eq ['Hey']
+        end
+      end
+    end
+
+    context "with nodes that are prefixed" do
+      let(:source) { "<admin #{namespaces}> <local:steward>Hey</local:steward> </admin>" }
+
+      before do
+        subject.content = source
+      end
+
+      context "and the local prefix is defined and no default namespace" do
+        let(:namespaces) { 'xmlns:local="http://nils.lib.tufts.edu/dcaadmin/" xmlns:ac="http://purl.org/dc/dcmitype/"' }
+        it "should have steward" do
+          expect(subject.steward).to eq ['Hey']
+        end
+      end
+
+      context "and a local prefix and the default namespace are defined" do
+        let(:namespaces) { 'xmlns="http://nils.lib.tufts.edu/dcaadmin/" xmlns:local="http://nils.lib.tufts.edu/dcaadmin/" xmlns:ac="http://purl.org/dc/dcmitype/"' }
+        describe "read" do
+          it "should have steward" do
+            expect(subject.steward).to eq ['Hey']
+          end
+        end
+
+        describe "write" do
+          context "a new node" do
+            before do
+              subject.note = ['foo']
+            end
+
+            it "should add the prefixed node" do
+              expect(subject.to_xml).to eq "<admin xmlns=\"http://nils.lib.tufts.edu/dcaadmin/\" xmlns:local=\"http://nils.lib.tufts.edu/dcaadmin/\" xmlns:ac=\"http://purl.org/dc/dcmitype/\"> <local:steward>Hey</local:steward> <local:note>foo</local:note></admin>"
+            end
+          end
+
+          context "an existing node" do
+            before do
+              subject.steward = ['foo', 'bar']
+            end
+
+            it "should add the prefixed node" do
+              expect(subject.to_xml).to eq "<admin xmlns=\"http://nils.lib.tufts.edu/dcaadmin/\" xmlns:local=\"http://nils.lib.tufts.edu/dcaadmin/\" xmlns:ac=\"http://purl.org/dc/dcmitype/\"> <local:steward>foo</local:steward> <local:steward>bar</local:steward></admin>"
+            end
+          end
+        end
+      end
+    end
+  end
+
 end
