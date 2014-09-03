@@ -60,5 +60,4 @@ class DcaAdmin < ActiveFedora::OmDatastream
         ng_xml.root.add_namespace_definition('ac', DCMI_TYPE)
       end
     end
-
 end

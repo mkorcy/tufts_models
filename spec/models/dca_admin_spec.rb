@@ -152,7 +152,7 @@ describe DcaAdmin do
         end
 
         describe "write" do
-          context "a new 'local' node" do
+          context "a new node" do
             before do
               subject.note = ['foo']
             end
