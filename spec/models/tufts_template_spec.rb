@@ -3,24 +3,24 @@ require 'spec_helper'
 describe TuftsTemplate do
 
   it 'most metadata attributes are not required' do
-    subject.required?(:title).should be_falsey
-    subject.required?(:displays).should be_falsey
+    expect(subject.required?(:title)).to be_falsey
+    expect(subject.required?(:displays)).to be_falsey
   end
 
   it 'has a unique pid namespace' do
     template = TuftsTemplate.new(template_name: 'Template #1')
     template.save
-    template.pid.should match /^template:/
+    expect(template.pid).to match /^template:/
   end
 
   describe 'template_name attribute' do
     it 'getter and setter methods exist' do
       subject.template_name = 'Title #1'
-      subject.template_name.should == 'Title #1'
+      expect(subject.template_name).to eq 'Title #1'
     end
 
     it 'is required' do
-      subject.required?(:template_name).should be_truthy
+      expect(subject.required?(:template_name)).to be_truthy
     end
   end
 
@@ -31,30 +31,33 @@ describe TuftsTemplate do
     end
 
     it 'is never published' do
-      subject.published?.should be_falsey
+      expect(subject.published?).to be_falsey
     end
   end
 
   describe '#attributes_to_update' do
     it "removes attributes that aren't in the edit list" do
-      attrs = { title: 'Title from template',
+      attrs = { template_name: 'Name of template',
+                title: 'Title from template',
                 filesize: ['57 MB'],
                 discover_users: ['someone@example.com'] }
       template = TuftsTemplate.new(attrs)
 
       # This test assumes that :discover_users is not included
       # in terms_for_editing, but the other attributes are
-      template.terms_for_editing.include?(:title).should be_truthy
-      template.terms_for_editing.include?(:filesize).should be_truthy
-      template.terms_for_editing.include?(:discover_users).should be_falsey
+      expect(template.terms_for_editing.include?(:template_name)).to be_truthy
+      expect(template.terms_for_editing.include?(:title)).to be_truthy
+      expect(template.terms_for_editing.include?(:filesize)).to be_truthy
+      expect(template.terms_for_editing.include?(:discover_users)).to be_falsey
 
       # Any attributes that aren't in terms_for_editing should
       # not be included in our result
       result = template.attributes_to_update
-      result.class.should == Hash
-      result.include?(:title).should be_truthy
-      result.include?(:filesize).should be_truthy
-      result.include?(:discover_users).should be_falsey
+      expect(result.class).to eq Hash
+      expect(result.include?(:title)).to be_truthy
+      expect(result.include?(:filesize)).to be_truthy
+      expect(result.include?(:template_name)).to be_falsey
+      expect(result.include?(:discover_users)).to be_falsey
     end
 
     it 'removes empty attributes from the list' do
@@ -66,12 +69,12 @@ describe TuftsTemplate do
                 description: ['a description'] }
       template = TuftsTemplate.new(attrs)
       result = template.attributes_to_update
-      result.include?(:title).should be_falsey
-      result.include?(:filesize).should be_falsey
-      result.include?(:toc).should be_falsey
-      result.include?(:genre).should be_falsey
-      result.include?(:relationship_attributes).should be_falsey
-      result.include?(:description).should be_truthy
+      expect(result.include?(:title)).to be_falsey
+      expect(result.include?(:filesize)).to be_falsey
+      expect(result.include?(:toc)).to be_falsey
+      expect(result.include?(:genre)).to be_falsey
+      expect(result.include?(:relationship_attributes)).to be_falsey
+      expect(result.include?(:description)).to be_truthy
     end
 
     it 'contains rels-ext attributes' do
@@ -94,7 +97,7 @@ describe TuftsTemplate do
       batch_id = '10'
       template = TuftsTemplate.new(attrs)
       record_ids.each do |n|
-        Job::ApplyTemplate.should_receive(:create).ordered.with(user_id: user_id, record_id: n, attributes: attrs, batch_id: batch_id).and_return("Job #{n}")
+        expect(Job::ApplyTemplate).to receive(:create).ordered.with(user_id: user_id, record_id: n, attributes: attrs, batch_id: batch_id).and_return("Job #{n}")
       end
 
       template.queue_jobs_to_apply_template(user_id, record_ids, batch_id)
@@ -105,7 +108,7 @@ describe TuftsTemplate do
       template = TuftsTemplate.new(attrs)
 
       error = "This method should not get called"
-      Job::ApplyTemplate.stub(:create).and_raise(error + ' 1')
+      allow(Job::ApplyTemplate).to receive(:create).and_raise(error + ' 1')
 
       template.queue_jobs_to_apply_template(1, [1, 2], 10)
     end
