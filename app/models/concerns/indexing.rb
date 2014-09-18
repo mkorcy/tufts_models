@@ -319,6 +319,12 @@ module Indexing
         pid.starts_with?("tufts:UP") ? "Periodicals" : "Text"
       when "info:fedora/cm:Object.Generic","info:fedora/afmodel:TuftsGenericObject"
         "Generic Objects"
+      when  "info:fedora/cm:Collection"
+        "Collection(Legacy)"
+      when  "info:fedora/cm:Text.RCR","info:fedora/afmodel:TuftsRCR"
+        "RCRs"
+      when "info:fedora/afmodel:TuftsVideo"
+        "Videos"
       when "info:fedora/afmodel:TuftsTemplate"
         "Template"
       else
