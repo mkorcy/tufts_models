@@ -26,7 +26,9 @@ module Indexing
     def create_facets(solr_doc)
       index_names_info(solr_doc)
       index_subject_info(solr_doc)
-      index_collection_info(solr_doc)
+      # we're not indexing this for MIRA¬
+      # TODO when we use this for TDL we'll have to address index_collection_info¬
+      #index_collection_info(solr_doc)
       index_date_info(solr_doc)
       index_format_info(solr_doc)
       index_pub_date(solr_doc)
