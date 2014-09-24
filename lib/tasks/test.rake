@@ -64,7 +64,6 @@ namespace :tufts do
       tufts:sample007
       tufts:aah.slidelib.8358-195
       tufts:aah.slidelib.8358-198
-      tufts:facpubs.nriagu-1983.00007
       tufts:ddennett-2006.00007
       tufts:UA206.001.426.00042
       tufts:UA084.508087359
@@ -75,7 +74,6 @@ namespace :tufts do
       tufts:MS123.001.001.00001
       tufts:MS165.002.001.00012
       tufts:12423
-      tufts:sd.0000189
       )
 
     loader = ActiveFedora::FixtureLoader.new("#{TuftsModels::Engine.root}/spec/fixtures")
