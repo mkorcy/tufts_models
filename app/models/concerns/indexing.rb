@@ -26,7 +26,9 @@ module Indexing
     def create_facets(solr_doc)
       index_names_info(solr_doc)
       index_subject_info(solr_doc)
-      index_collection_info(solr_doc)
+      # we're not indexing this for MIRA¬
+      # TODO when we use this for TDL we'll have to address index_collection_info¬
+      #index_collection_info(solr_doc)
       index_date_info(solr_doc)
       index_format_info(solr_doc)
       index_pub_date(solr_doc)
@@ -319,6 +321,12 @@ module Indexing
         pid.starts_with?("tufts:UP") ? "Periodicals" : "Text"
       when "info:fedora/cm:Object.Generic","info:fedora/afmodel:TuftsGenericObject"
         "Generic Objects"
+      when  "info:fedora/cm:Collection"
+        "Collection(Legacy)"
+      when  "info:fedora/cm:Text.RCR","info:fedora/afmodel:TuftsRCR"
+        "RCRs"
+      when "info:fedora/afmodel:TuftsVideo"
+        "Videos"
       when "info:fedora/afmodel:TuftsTemplate"
         "Template"
       else

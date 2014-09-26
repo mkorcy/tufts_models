@@ -38,6 +38,18 @@ describe DcaAdmin do
       expect(subject['published_at_dtsi']).to eq '2013-03-22T12:33:00Z'
       expect(subject['embargo_dtsim']).to eq ['2023-06-12T00:00:00Z']
     end
+  it "should index displays so the tufts-image-library app can search for items" do
+    subject.displays = ['dl', 'tdil']
+    expect(subject.to_solr['displays_ssim']).to match_array ['dl', 'tdil']
+  end
+
+  it "should index the published and edited dates" do
+    time = DateTime.parse('2013-03-22T12:33:00Z')
+    subject.edited_at = time
+    subject.published_at = time
+    expect(subject.to_solr).to eq(
+      "edited_at_dtsi" => '2013-03-22T12:33:00Z',
+      'published_at_dtsi' => '2013-03-22T12:33:00Z')
   end
 
 
