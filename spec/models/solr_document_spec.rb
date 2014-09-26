@@ -10,8 +10,21 @@ describe SolrDocument do
   end
 
   describe "#preview_fedora_path" do
-    it "should always have link to fedora object" do
+      before { subject['edited_at_dtsi'] = '2014-06-12T00:00:00Z', subject['published_at_dtsi'] = '2014-06-11T00:00:00Z' }
+    it "should always have link to a fedora stage object when there is a pending publish" do
       url = 'http://localhost:8983/fedora/objects/tufts:7'
+      subject['displays_ssim'] = nil
+      expect(subject.preview_fedora_path).to eq url
+      subject['displays_ssim'] = ['dl']
+      expect(subject.preview_fedora_path).to eq url
+      subject['displays_ssim'] = ['tufts']
+      expect(subject.preview_fedora_path).to eq url
+    end
+
+    it "should always have link to a fedora prod object when it has been published" do
+      subject['edited_at_dtsi'] = '2014-06-12T00:00:00Z'
+      subject['published_at_dtsi'] = '2014-06-12T00:00:00Z'
+      url = 'http://localhost.prod.edu:8983/fedora/objects/tufts:7'
       subject['displays_ssim'] = nil
       expect(subject.preview_fedora_path).to eq url
       subject['displays_ssim'] = ['dl']
@@ -22,10 +35,19 @@ describe SolrDocument do
   end
 
   describe "#preview_dl_path" do
+    before { subject['edited_at_dtsi'] = '2014-06-12T00:00:00Z', subject['published_at_dtsi'] = '2014-06-11T00:00:00Z' }
     let(:url) { 'http://dev-dl.lib.tufts.edu/catalog/tufts:7' }
     describe "when displays is 'dl'" do
       before { subject['displays_ssim'] = ['dl'] }
       it "has a link to the fedora object" do
+        expect(subject.preview_dl_path).to eq url
+      end
+    end
+    describe "when it has been published" do
+      it "should have a link to the fedora object in production" do
+        url = 'http://dl.tufts.edu/catalog/tufts:7'
+        subject['edited_at_dtsi'] = '2014-06-12T00:00:00Z'
+        subject['published_at_dtsi'] = '2014-06-12T00:00:00Z'
         expect(subject.preview_dl_path).to eq url
       end
     end
